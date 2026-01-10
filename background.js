@@ -184,6 +184,7 @@ chrome.runtime.onStartup.addListener(async () => {
   const now = Date.now();
   for (const [domain, session] of Object.entries(data.activeSessions || {})) {
     if (session.endsAt > now) {
+      console.log(`Resuming session for ${domain}.`);
       startBadgeTimer(domain, session.endsAt);
     } else {
       // Clean up expired sessions
