@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "Pause - Intentional Browsing",
+  "version": "1.0.0",
+  "description": "Enforce intentional website usage with session timers and daily limits.",
+  "permissions": [
+    "storage",
+    "alarms",
+    "tabs",
+    "webNavigation",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_page": "options.html",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_start"
+    }
+  ]
+}
