@@ -89,7 +89,7 @@
     <h1 id="title">Session Expired</h1>
     <p id="message">Your time on this site has come to an end. Take a breath and focus on what matters next.</p>
 
-    <a href="https://www.google.com" class="btn">Return to Focus</a>
+    <a href="#" class="btn" id="return-btn">Return to Focus</a>
 
     <div class="stats" id="stats">
       Daily usage for this site: <span id="daily-used">0</span> / <span id="daily-limit">30</span> min
@@ -109,6 +109,15 @@
       document.getElementById('title').innerText = 'Session Over';
       document.getElementById('message').innerText = `Your session for ${domain} has ended. Take a breath before deciding if you truly need more time.`;
     }
+
+    document.getElementById('return-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.close();
+      }
+    });
 
     chrome.storage.local.get(['sites', 'usage'], (data) => {
       if (domain && data.sites && data.sites[domain]) {

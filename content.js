@@ -4,17 +4,21 @@
  */
 
 (async function() {
-  const domain = normalizeDomain(window.location.href);
-  if (!domain) return;
-
   const data = await chrome.storage.local.get();
-  if (!data.sites || !data.sites[domain]) return;
+  if (!data.sites) return;
+
+  const hostname = window.location.hostname;
+  const domain = Object.keys(data.sites).find(d =>
+    hostname === d || hostname.endsWith('.' + d)
+  );
+
+  if (!domain) return;
 
   // Check if there's already an active session
   const activeSession = data.activeSessions[domain];
   const now = Date.now();
   if (activeSession && activeSession.endsAt > now) {
-    // Session is active, show only the floating timer widget (Phase 3)
+    // Session is active, show only the floating timer widget
     showTimerWidget(activeSession.endsAt);
     return;
   }

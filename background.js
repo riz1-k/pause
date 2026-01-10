@@ -33,6 +33,7 @@ async function setData(data) {
   return await chrome.storage.local.set(data);
 }
 
+// Returns the root domain for display, but site matching uses hostname check
 function normalizeDomain(url) {
   try {
     const hostname = new URL(url).hostname;
@@ -42,37 +43,41 @@ function normalizeDomain(url) {
   }
 }
 
+function findTargetSite(url, sites) {
+  try {
+    const hostname = new URL(url).hostname;
+    const domain = Object.keys(sites).find(d =>
+      hostname === d || hostname.endsWith('.' + d)
+    );
+    return domain;
+  } catch (e) {
+    return null;
+  }
+}
+
 // --- Navigation Interception ---
 chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   if (details.frameId !== 0) return; // Only top-level navigation
 
-  const domain = normalizeDomain(details.url);
+  const data = await getData();
+  const domain = findTargetSite(details.url, data.sites);
   if (!domain) return;
 
-  const data = await getData();
-  if (data.sites[domain]) {
-    // Check if there's an active session
-    const activeSession = data.activeSessions[domain];
-    const now = Date.now();
+  const activeSession = data.activeSessions[domain];
+  const now = Date.now();
 
-    if (activeSession && activeSession.endsAt > now) {
-      console.log(`Active session found for ${domain}. Remaining: ${Math.round((activeSession.endsAt - now) / 1000)}s`);
-      return; // Allow navigation
-    }
+  if (activeSession && activeSession.endsAt > now) {
+    return; // Allow navigation
+  }
 
-    // Check if daily limit reached
-    const today = new Date().toISOString().split('T')[0];
-    const usageToday = (data.usage[today] && data.usage[today][domain]) || 0;
-    const limit = data.sites[domain].dailyLimitMinutes;
+  // Check if daily limit reached
+  const today = new Date().toISOString().split('T')[0];
+  const usageToday = (data.usage[today] && data.usage[today][domain]) || 0;
+  const limit = data.sites[domain].dailyLimitMinutes;
 
-    if (usageToday >= limit) {
-      chrome.tabs.update(details.tabId, { url: chrome.runtime.getURL(`blocked.html?domain=${domain}&reason=daily`) });
-      return;
-    }
-
-    // No active session and within limits -> Intercept and show intent modal
-    // We'll handle this by letting the content script take over or redirecting to a modal page
-    // For now, let's keep it simple: content script will handle the overlay if it sees a target site without session
+  if (usageToday >= limit) {
+    chrome.tabs.update(details.tabId, { url: chrome.runtime.getURL(`blocked.html?domain=${domain}&reason=daily`) });
+    return;
   }
 });
 
@@ -121,7 +126,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     // Notify tabs
     const tabs = await chrome.tabs.query({});
     for (const tab of tabs) {
-      if (normalizeDomain(tab.url) === domain) {
+      if (findTargetSite(tab.url, data.sites) === domain) {
         chrome.tabs.update(tab.id, { url: chrome.runtime.getURL(`blocked.html?domain=${domain}&reason=session`) });
       }
     }
