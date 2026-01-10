@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pause - Site Blocked</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     body {
       margin: 0;
@@ -14,63 +14,72 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background-color: #0f172a;
-      color: white;
+      background-color: white;
+      color: #09090b;
       font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
 
     .container {
       text-align: center;
-      max-width: 500px;
-      padding: 40px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 24px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      max-width: 440px;
+      width: 90%;
+      padding: 48px 32px;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
     }
 
     .icon {
-      font-size: 64px;
+      font-size: 32px;
       margin-bottom: 24px;
+      display: inline-block;
+      padding: 16px;
+      background: #f4f4f5;
+      border-radius: 9999px;
     }
 
     h1 {
-      font-size: 32px;
-      margin-bottom: 16px;
-      background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
     }
 
     p {
-      color: #94a3b8;
-      font-size: 18px;
+      color: #71717a;
+      font-size: 15px;
       line-height: 1.6;
-      margin-bottom: 40px;
+      margin-bottom: 32px;
     }
 
     .btn {
       display: inline-block;
-      background: #6366f1;
+      background: #18181b;
       color: white;
-      padding: 16px 32px;
-      border-radius: 12px;
+      padding: 12px 24px;
+      border-radius: 6px;
       text-decoration: none;
-      font-weight: 700;
-      font-size: 16px;
-      transition: all 0.2s;
+      font-weight: 500;
+      font-size: 14px;
+      transition: opacity 0.2s;
     }
 
     .btn:hover {
-      background: #4f46e5;
-      transform: translateY(-2px);
+      opacity: 0.9;
     }
 
     .stats {
       margin-top: 32px;
-      font-size: 14px;
-      color: #64748b;
+      padding-top: 24px;
+      border-top: 1px solid #f4f4f5;
+      font-size: 13px;
+      color: #71717a;
+    }
+
+    #daily-used, #daily-limit {
+      font-weight: 600;
+      color: #09090b;
     }
   </style>
 </head>
@@ -78,9 +87,9 @@
   <div class="container">
     <div class="icon" id="icon">⏰</div>
     <h1 id="title">Session Expired</h1>
-    <p id="message">Your time on this site has come to an end. Take a break and come back later if you still need it.</p>
+    <p id="message">Your time on this site has come to an end. Take a breath and focus on what matters next.</p>
 
-    <a href="https://www.google.com" class="btn">Go Somewhere Else</a>
+    <a href="https://www.google.com" class="btn">Return to Focus</a>
 
     <div class="stats" id="stats">
       Daily usage for this site: <span id="daily-used">0</span> / <span id="daily-limit">30</span> min

@@ -3,10 +3,11 @@
 body {
   margin: 0;
   padding: 0;
-  width: 320px;
-  background: #020617;
-  color: white;
+  width: 300px;
+  background: white;
+  color: #09090b;
   font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 .popup-container {
@@ -24,72 +25,75 @@ header {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: 700;
-  font-size: 18px;
-  background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: -0.02em;
 }
 
 .logo img {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
 }
 
 #open-settings {
   background: none;
-  border: none;
-  font-size: 18px;
+  border: 1px solid #e4e4e7;
+  font-size: 14px;
   cursor: pointer;
-  padding: 4px;
+  padding: 6px;
   border-radius: 6px;
-  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s;
 }
 
 #open-settings:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: #f4f4f5;
 }
 
 .session-card {
-  background: #0f172a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
+  background: white;
+  border: 1px solid #e4e4e7;
+  border-radius: 12px;
   padding: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   text-align: center;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
 .card-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #94a3b8;
-  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #71717a;
+  margin-bottom: 6px;
 }
 
 .session-domain {
   font-weight: 600;
+  font-size: 14px;
   margin-bottom: 4px;
 }
 
 .timer {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 700;
   margin-bottom: 12px;
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 .progress-bar {
-  height: 6px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 3px;
+  height: 4px;
+  background: #f4f4f5;
+  border-radius: 9999px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: #6366f1;
+  background: #18181b;
   transition: width 1s linear;
 }
 
@@ -99,36 +103,36 @@ header {
 
 .empty-state {
   text-align: center;
-  padding: 24px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 16px;
-  margin-bottom: 20px;
+  padding: 20px;
+  background: #fcfcfc;
+  border: 1px dashed #e4e4e7;
+  border-radius: 12px;
+  margin-bottom: 16px;
 }
 
 .empty-state .icon {
-  font-size: 24px;
-  margin-bottom: 8px;
+  font-size: 20px;
+  margin-bottom: 6px;
 }
 
 .empty-state p {
   font-size: 13px;
-  color: #94a3b8;
+  color: #71717a;
   margin: 0;
 }
 
 .section-title {
   font-size: 12px;
   font-weight: 600;
-  color: #64748b;
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  color: #71717a;
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
 }
 
 .usage-summary {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .usage-mini-item {
@@ -136,12 +140,18 @@ header {
   justify-content: space-between;
   align-items: center;
   font-size: 13px;
+  padding: 8px 12px;
+  background: #fcfcfc;
+  border: 1px solid #f1f1f1;
+  border-radius: 8px;
 }
 
 .usage-mini-domain {
   font-weight: 500;
+  color: #18181b;
 }
 
 .usage-mini-time {
-  color: #94a3b8;
+  color: #71717a;
+  font-size: 12px;
 }
