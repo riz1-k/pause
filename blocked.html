@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pause - Site Blocked</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #0f172a;
+      color: white;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .container {
+      text-align: center;
+      max-width: 500px;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .icon {
+      font-size: 64px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p {
+      color: #94a3b8;
+      font-size: 18px;
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+
+    .btn {
+      display: inline-block;
+      background: #6366f1;
+      color: white;
+      padding: 16px 32px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: #4f46e5;
+      transform: translateY(-2px);
+    }
+
+    .stats {
+      margin-top: 32px;
+      font-size: 14px;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon" id="icon">⏰</div>
+    <h1 id="title">Session Expired</h1>
+    <p id="message">Your time on this site has come to an end. Take a break and come back later if you still need it.</p>
+
+    <a href="https://www.google.com" class="btn">Go Somewhere Else</a>
+
+    <div class="stats" id="stats">
+      Daily usage for this site: <span id="daily-used">0</span> / <span id="daily-limit">30</span> min
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const domain = params.get('domain');
+    const reason = params.get('reason');
+
+    if (reason === 'daily') {
+      document.getElementById('icon').innerText = '🚫';
+      document.getElementById('title').innerText = 'Daily Limit Reached';
+      document.getElementById('message').innerText = `You've reached your daily limit for ${domain}. Focus on something else and come back tomorrow!`;
+    } else {
+      document.getElementById('title').innerText = 'Session Over';
+      document.getElementById('message').innerText = `Your session for ${domain} has ended. Take a breath before deciding if you truly need more time.`;
+    }
+
+    chrome.storage.local.get(['sites', 'usage'], (data) => {
+      if (domain && data.sites && data.sites[domain]) {
+        const today = new Date().toISOString().split('T')[0];
+        const used = (data.usage[today] && data.usage[today][domain]) || 0;
+        const limit = data.sites[domain].dailyLimitMinutes;
+
+        document.getElementById('daily-used').innerText = used;
+        document.getElementById('daily-limit').innerText = limit;
+      }
+    });
+  </script>
+</body>
+</html>
