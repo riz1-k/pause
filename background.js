@@ -94,19 +94,29 @@ function getNextMidnight() {
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === 'midnight-reset') {
     const data = await getData();
-    const today = new Date().toISOString().split('T')[0];
-    if (!data.usage[today]) {
-      data.usage[today] = {};
-    }
+    data.usage = {}; // Clear all usage
     await setData(data);
     console.log('Daily usage reset alarm fired.');
   } else if (alarm.name.startsWith('session-')) {
     const domain = alarm.name.replace('session-', '');
     console.log(`Session for ${domain} expired.`);
-    // Handle session end
+
     const data = await getData();
+    const session = data.activeSessions[domain];
+
+    // Add session duration to daily usage
+    if (session) {
+      const today = new Date().toISOString().split('T')[0];
+      if (!data.usage[today]) data.usage[today] = {};
+      data.usage[today][domain] = (data.usage[today][domain] || 0) + session.durationMinutes;
+    }
+
     delete data.activeSessions[domain];
     await setData(data);
+
+    // Clear badge
+    chrome.action.setBadgeText({ text: '' });
+    if (badgeIntervals[domain]) clearInterval(badgeIntervals[domain]);
 
     // Notify tabs
     const tabs = await chrome.tabs.query({});
@@ -140,9 +150,45 @@ async function startSession(domain, minutes) {
   await setData(data);
 
   chrome.alarms.create(`session-${domain}`, { when: endsAt });
-  updateBadge(domain);
+  startBadgeTimer(domain, endsAt);
 }
 
-function updateBadge(domain) {
-  // Logic to update badge text every minute
+// --- Badge Management ---
+let badgeIntervals = {};
+
+function startBadgeTimer(domain, endsAt) {
+  if (badgeIntervals[domain]) clearInterval(badgeIntervals[domain]);
+
+  const update = () => {
+    const now = Date.now();
+    const remainingMs = endsAt - now;
+
+    if (remainingMs <= 0) {
+      chrome.action.setBadgeText({ text: '' });
+      clearInterval(badgeIntervals[domain]);
+      return;
+    }
+
+    const mins = Math.ceil(remainingMs / 60000);
+    chrome.action.setBadgeText({ text: `${mins}m` });
+    chrome.action.setBadgeBackgroundColor({ color: mins <= 2 ? '#ef4444' : '#6366f1' });
+  };
+
+  update();
+  badgeIntervals[domain] = setInterval(update, 30000);
 }
+
+// On startup, resume badge timers
+chrome.runtime.onStartup.addListener(async () => {
+  const data = await getData();
+  const now = Date.now();
+  for (const [domain, session] of Object.entries(data.activeSessions || {})) {
+    if (session.endsAt > now) {
+      startBadgeTimer(domain, session.endsAt);
+    } else {
+      // Clean up expired sessions
+      delete data.activeSessions[domain];
+      await setData(data);
+    }
+  }
+});

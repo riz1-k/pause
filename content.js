@@ -138,5 +138,58 @@ function injectModal(domain) {
 }
 
 function showTimerWidget(endsAt) {
-  // To be implemented in Phase 3
+  if (document.getElementById('pause-timer-widget')) return;
+
+  const widget = document.createElement('div');
+  widget.id = 'pause-timer-widget';
+  widget.innerHTML = `<div class="dot"></div><span id="pause-timer-display">--:--</span>`;
+  document.documentElement.appendChild(widget);
+
+  const display = widget.querySelector('#pause-timer-display');
+
+  const update = () => {
+    const now = Date.now();
+    const diif = endsAt - now;
+
+    if (diif <= 0) {
+      display.innerText = '00:00';
+      clearInterval(interval);
+      return;
+    }
+
+    const mins = Math.floor(diif / 60000);
+    const secs = Math.floor((diif % 60000) / 1000);
+    display.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+    if (mins < 2) {
+      widget.classList.add('warning');
+    }
+  };
+
+  update();
+  const interval = setInterval(update, 1000);
+
+  // Basic Drag Functionality
+  let isDragging = false;
+  let offsetX, offsetY;
+
+  widget.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    offsetX = e.clientX - widget.getBoundingClientRect().left;
+    offsetY = e.clientY - widget.getBoundingClientRect().top;
+    widget.style.transition = 'none';
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    widget.style.left = `${e.clientX - offsetX}px`;
+    widget.style.top = `${e.clientY - offsetY}px`;
+    widget.style.bottom = 'auto';
+    widget.style.right = 'auto';
+  });
+
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+    widget.style.transition = 'transform 0.2s, background 0.2s';
+  });
 }
