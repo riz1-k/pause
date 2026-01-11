@@ -7,6 +7,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   render();
 
   document.getElementById('add-site-btn').addEventListener('click', addSite);
+
+  // Listen for background usage updates
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local') {
+      render();
+    }
+  });
 });
 
 async function getData() {

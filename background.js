@@ -82,6 +82,47 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
 });
 
 // --- Alarms & Timers ---
+let usageUpdateInterval = null;
+
+function startUsageTracker() {
+  if (usageUpdateInterval) return;
+
+  usageUpdateInterval = setInterval(async () => {
+    const data = await getData();
+    const now = Date.now();
+    const today = new Date().toISOString().split('T')[0];
+    let changed = false;
+
+    if (!data.usage[today]) {
+      data.usage[today] = {};
+      changed = true;
+    }
+
+    for (const domain in data.activeSessions) {
+      const session = data.activeSessions[domain];
+      if (session.endsAt > now) {
+        const elapsedMins = Math.floor((now - session.startedAt) / 60000);
+        const previouslyRecorded = session.recordedElapsedMins || 0;
+        const diff = elapsedMins - previouslyRecorded;
+
+        if (diff > 0) {
+          data.usage[today][domain] = (data.usage[today][domain] || 0) + diff;
+          session.recordedElapsedMins = elapsedMins;
+          changed = true;
+          console.log(`Updated real-time usage for ${domain}: +${diff} min`);
+        }
+      }
+    }
+
+    if (changed) {
+      await setData(data);
+    }
+  }, 10000); // Check every 10s for responsiveness
+}
+
+// Start tracker on load
+startUsageTracker();
+
 function setupMidnightReset() {
   chrome.alarms.create('midnight-reset', {
     when: getNextMidnight(),
@@ -109,11 +150,16 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     const data = await getData();
     const session = data.activeSessions[domain];
 
-    // Add session duration to daily usage
     if (session) {
       const today = new Date().toISOString().split('T')[0];
       if (!data.usage[today]) data.usage[today] = {};
-      data.usage[today][domain] = (data.usage[today][domain] || 0) + session.durationMinutes;
+
+      // Calculate remaining minutes that weren't captured by the tracker
+      const totalElapsedMins = Math.floor((Date.now() - session.startedAt) / 60000);
+      const previouslyRecorded = session.recordedElapsedMins || 0;
+      const remains = Math.max(0, session.durationMinutes - previouslyRecorded);
+
+      data.usage[today][domain] = (data.usage[today][domain] || 0) + remains;
     }
 
     delete data.activeSessions[domain];
@@ -150,7 +196,8 @@ async function startSession(domain, minutes) {
   data.activeSessions[domain] = {
     startedAt: now,
     durationMinutes: minutes,
-    endsAt: endsAt
+    endsAt: endsAt,
+    recordedElapsedMins: 0
   };
   await setData(data);
 
